@@ -1,0 +1,7 @@
+<library path="mecanum_controller">
+  <class name="robot_bombero_controller::MecanumController"
+         type="robot_bombero_controller::MecanumController"
+         base_class_type="controller_interface::ControllerInterface">
+    <description>Controlador de locomoción mecanum para el robot bombero.</description>
+  </class>
+</library>

@@ -1,0 +1,17 @@
+<package format="3">
+  <name>robot_bombero_tests</name>
+  <version>0.0.1</version>
+  <description>Pruebas unitarias e integración para el robot bombero</description>
+  <maintainer email="sofia@example.com">Sofía Milagros</maintainer>
+  <license>MIT</license>
+
+  <buildtool_depend>ament_cmake</buildtool_depend>
+  <test_depend>ament_lint_auto</test_depend>
+  <test_depend>ament_lint_common</test_depend>
+  <test_depend>ament_cmake_pytest</test_depend>
+  <test_depend>rclpy</test_depend>
+
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
+</package>

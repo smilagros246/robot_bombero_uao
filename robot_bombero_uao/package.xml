@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>robot_bombero_uao</name>
+  <version>0.0.1</version>
+  <description>Megapaquete para el robot bombero UAO</description>
+  <maintainer email="tu_email@example.com">Tu Nombre</maintainer>
+  <license>Apache-2.0</license>
+
+  <depend>rclcpp</depend>
+
+  <!-- Aquí puedes agregar más dependencias conforme avance el proyecto -->
+  <!-- <depend>otras_dependencias</depend> -->
+
+  <buildtool_depend>ament_cmake</buildtool_depend>
+</package>

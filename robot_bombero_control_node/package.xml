@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<package format="3">
+  <name>robot_bombero_control_node</name>
+  <version>0.0.1</version>
+  <description>Control node for Robot Bombero</description>
+  <maintainer email="sofia@example.com">Sofía Milagros</maintainer>
+  <license>MIT</license>
+
+  <buildtool_depend>ament_cmake</buildtool_depend>
+
+  <depend>rclcpp</depend>
+  <depend>controller_manager</depend>
+  <depend>hardware_interface</depend>
+  <depend>pluginlib</depend>
+
+  <exec_depend>robot_bombero_description</exec_depend>
+  <exec_depend>robot_bombero_msgs</exec_depend>
+
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
+</package>

@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<package format="3">
+  <name>robot_bombero_controller</name>
+  <version>0.0.1</version>
+  <description>Controladores personalizados para el robot bombero UAO.</description>
+  <maintainer email="sofia@uao.edu.co">Sofía Milagros</maintainer>
+  <license>MIT</license>
+
+  <buildtool_depend>ament_cmake</buildtool_depend>
+
+  <depend>rclcpp</depend>
+  <depend>controller_interface</depend>
+  <depend>hardware_interface</depend>
+  <depend>pluginlib</depend>
+
+  <export>
+    <pluginlib plugin="${prefix}/pluginlib_mecanum.xml"/>
+    <pluginlib plugin="${prefix}/pluginlib_arm.xml"/>
+  </export>
+</package>
