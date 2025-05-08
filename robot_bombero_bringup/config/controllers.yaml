@@ -1,7 +1,21 @@
-# controller_manager:
-#   ros__parameters:
-#     update_rate: 50
-#     joint_state_broadcaster:
-#       type: joint_state_broadcaster/JointStateBroadcaster
-#     base_controller:
-#       type: diff_drive_controller/DiffDriveController
+controller_manager:
+  ros__parameters:
+    # Controlador del brazo servo
+    arm_controller:
+      type: "robot_bombero_controller::ArmServoController"
+      joints:
+        - "joint_waist"
+        - "joint_shoulder"
+        - "joint_elbow"
+        - "joint_wrist"
+      update_rate: 50  # Tasa de actualización en Hz
+
+    # Controlador mecanum para locomoción
+    mecanum_controller:
+      type: "robot_bombero_controller::MecanumController"
+      wheels:
+        - "front_left_wheel"
+        - "front_right_wheel"
+        - "back_left_wheel"
+        - "back_right_wheel"
+      update_rate: 50  # Tasa de actualización en Hz

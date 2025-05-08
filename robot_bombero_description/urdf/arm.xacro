@@ -1,0 +1,148 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="arm">
+
+  <!-- Propiedades para los links -->
+  <xacro:property name="mass" value="0.4" /> <!-- Masa arbitraria -->
+  <xacro:property name="width" value="0.07" /> <!-- Ancho de los links -->
+  <xacro:property name="height_waist" value="0.05" /> <!-- Altura del link de la cintura -->
+  <xacro:property name="height_shoulder" value="0.3" /> <!-- Altura del link del hombro -->
+  <xacro:property name="height_elbow" value="0.2" /> <!-- Altura del link del codo -->
+  <xacro:property name="height_wrist" value="0.1" /> <!-- Altura del link de la muñeca -->
+  <xacro:property name="axel_offset" value="0.05" /> <!-- Desplazamiento de los ejes -->
+
+  <material name="red">
+    <color rgba="1.0 0.0 0.0 1.0"/>  <!-- Rojo -->
+  </material>
+
+
+  <!-- Links del brazo -->
+  <link name="link_waist">
+    <collision>
+      <origin xyz="0 0 ${height_waist / 2}" rpy="0 0 0"/>
+      <geometry>
+        <box size="${width} ${width} ${height_waist}"/>
+      </geometry>
+    </collision>
+    <visual>
+      <origin xyz="0 0 ${height_waist / 2}" rpy="0 0 0"/>
+      <geometry>
+        <box size="${width} ${width} ${height_waist}"/>
+      </geometry>
+      <material name="blue"/>
+    </visual>
+    <inertial>
+      <origin xyz="0 0 ${height_waist / 2}" rpy="0 0 0"/>
+      <mass value="${mass}"/>
+      <inertia ixx="${mass / 12.0 * (width*width + height_waist*height_waist)}"
+               ixy="0.0" ixz="0.0"
+               iyy="${mass / 12.0 * (height_waist*height_waist + width*width)}"
+               iyz="0.0" izz="${mass / 12.0 * (width*width + width*width)}"/>
+    </inertial>
+  </link>
+
+  <link name="link_shoulder">
+    <collision>
+      <origin xyz="0 0 ${height_shoulder / 2}" rpy="0 0 0"/>
+      <geometry>
+        <box size="${width} ${width} ${height_shoulder}"/>
+      </geometry>
+    </collision>
+    <visual>
+      <origin xyz="0 0 ${height_shoulder / 2}" rpy="0 0 0"/>
+      <geometry>
+        <box size="${width} ${width} ${height_shoulder}"/>
+      </geometry>
+      <material name="red"/>
+    </visual>
+    <inertial>
+      <origin xyz="0 0 ${height_shoulder / 2}" rpy="0 0 0"/>
+      <mass value="${mass}"/>
+      <inertia ixx="${mass / 12.0 * (width*width + height_shoulder*height_shoulder)}"
+               ixy="0.0" ixz="0.0"
+               iyy="${mass / 12.0 * (height_shoulder*height_shoulder + width*width)}"
+               iyz="0.0" izz="${mass / 12.0 * (width*width + width*width)}"/>
+    </inertial>
+  </link>
+
+  <link name="link_elbow">
+    <collision>
+      <origin xyz="0 0 ${height_elbow / 2}" rpy="0 0 0"/>
+      <geometry>
+        <box size="${width} ${width} ${height_elbow}"/>
+      </geometry>
+    </collision>
+    <visual>
+      <origin xyz="0 0 ${height_elbow / 2}" rpy="0 0 0"/>
+      <geometry>
+        <box size="${width} ${width} ${height_elbow}"/>
+      </geometry>
+      <material name="blue"/>
+    </visual>
+    <inertial>
+      <origin xyz="0 0 ${height_elbow / 2}" rpy="0 0 0"/>
+      <mass value="${mass}"/>
+      <inertia ixx="${mass / 12.0 * (width*width + height_elbow*height_elbow)}"
+               ixy="0.0" ixz="0.0"
+               iyy="${mass / 12.0 * (height_elbow*height_elbow + width*width)}"
+               iyz="0.0" izz="${mass / 12.0 * (width*width + width*width)}"/>
+    </inertial>
+  </link>
+
+  <link name="link_wrist">
+    <collision>
+      <origin xyz="0 0 ${height_wrist / 2}" rpy="0 0 0"/>
+      <geometry>
+        <box size="${width} ${width} ${height_wrist}"/>
+      </geometry>
+    </collision>
+    <visual>
+      <origin xyz="0 0 ${height_wrist / 2}" rpy="0 0 0"/>
+      <geometry>
+        <box size="${width} ${width} ${height_wrist}"/>
+      </geometry>
+      <material name="red"/>
+    </visual>
+    <inertial>
+      <origin xyz="0 0 ${height_wrist / 2}" rpy="0 0 0"/>
+      <mass value="${mass}"/>
+      <inertia ixx="${mass / 12.0 * (width*width + height_wrist*height_wrist)}"
+               ixy="0.0" ixz="0.0"
+               iyy="${mass / 12.0 * (height_wrist*height_wrist + width*width)}"
+               iyz="0.0" izz="${mass / 12.0 * (width*width + width*width)}"/>
+    </inertial>
+  </link>
+
+  <!-- Joints del brazo -->
+  <joint name="joint_waist" type="revolute">
+    <parent link="chassis"/>
+    <child link="link_waist"/>
+    <origin xyz="0.1 0 0.1"/>
+    <axis xyz="0 0 1"/>
+    <limit effort="100" velocity="1.0" lower="-1.5" upper="1.5"/>
+  </joint>
+
+  <joint name="joint_shoulder" type="revolute">
+    <parent link="link_waist"/>
+    <child link="link_shoulder"/>
+    <origin xyz="0 0 ${height_waist}" rpy="0 0 0"/>
+    <axis xyz="0 1 0"/>
+    <limit effort="100" velocity="1.0" lower="-1.5" upper="1.5"/>
+  </joint>
+
+  <joint name="joint_elbow" type="revolute">
+    <parent link="link_shoulder"/>
+    <child link="link_elbow"/>
+    <origin xyz="0 0 ${height_shoulder}" rpy="0 0 0"/>
+    <axis xyz="0 1 0"/>
+    <limit effort="100" velocity="1.0" lower="-1.5" upper="1.5"/>
+  </joint>
+
+  <joint name="joint_wrist" type="revolute">
+    <parent link="link_elbow"/>
+    <child link="link_wrist"/>
+    <origin xyz="0 0 ${height_elbow}" rpy="0 0 0"/>
+    <axis xyz="0 1 0"/>
+    <limit effort="100" velocity="1.0" lower="-1.5" upper="1.5"/>
+  </joint>
+
+</robot>

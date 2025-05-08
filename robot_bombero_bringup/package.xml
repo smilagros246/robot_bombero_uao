@@ -9,14 +9,13 @@
 
   <buildtool_depend>ament_cmake</buildtool_depend>
 
-  <exec_depend>launch</exec_depend>
-  <exec_depend>launch_ros</exec_depend>
-  <!-- <exec_depend>robot_bombero_control_node</exec_depend>
-  <exec_depend>robot_bombero_safety</exec_depend>
-  <exec_depend>robot_bombero_teleop</exec_depend>
-  <exec_depend>robot_bombero_pump</exec_depend>
-  <exec_depend>robot_bombero_vision</exec_depend> -->
-
+  <depend>rclcpp</depend>
+  <depend>controller_manager</depend>
+  <depend>robot_bombero_controller</depend>
+  <depend>robot_bombero_description</depend>
+  <depend>robot_bombero_hardware</depend>
+  <depend>robot_bombero_teleop</depend>
+  <depend>robot_bombero_vision</depend>
   <export>
     <build_type>ament_cmake</build_type>
   </export>

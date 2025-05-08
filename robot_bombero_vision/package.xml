@@ -15,11 +15,13 @@
 
   <!-- Dependencias para procesamiento de imágenes -->
   <exec_depend>python3-opencv</exec_depend>
-
+  <exec_depend>python3-smbus</exec_depend>
+  <exec_depend>python3-numpy</exec_depend>
 
   <!-- Dependencia para pruebas unitarias (si se quiere usar) -->
   <exec_depend>python3-pytest</exec_depend>
   <exec_depend>python3-opencv</exec_depend>
+  
 
 
   <test_depend>ament_copyright</test_depend>

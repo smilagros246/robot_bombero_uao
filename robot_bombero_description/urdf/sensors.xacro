@@ -1,0 +1,187 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://ros.org/wiki/xacro">
+  <xacro:macro name="robot_sensors" params="parent">
+
+    <xacro:property name="sensor_size" value="0.03 0.03 0.02"/>
+    <xacro:property name="ir_offset" value="0.15"/>
+
+    <material name="green">
+        <color rgba="0.0 1.0 0.0 1.0"/>
+    </material>
+
+    <!-- Sensor térmico -->
+    <link name="link_thermal_sensor">
+      <visual>
+        <geometry>
+          <box size="${sensor_size}"/>
+        </geometry>
+        <material name="red">
+          <color rgba="1.0 0.0 0.0 1.0"/>
+        </material>
+      </visual>
+      <collision>
+        <geometry>
+          <box size="${sensor_size}"/>
+        </geometry>
+      </collision>
+      <inertial>
+        <mass value="0.02"/>
+        <inertia ixx="0.000005" ixy="0.0" ixz="0.0" iyy="0.000005" iyz="0.0" izz="0.000005"/>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+      </inertial>
+    </link>
+    <joint name="joint_thermal_sensor" type="fixed">
+      <parent link="${parent}"/>
+      <child link="link_thermal_sensor"/>
+      <origin xyz="0.26 0.05 0.10" rpy="0 0 0"/>
+    </joint>
+
+    <!-- Sharp Front -->
+    <link name="link_sharp_front">
+      <visual>
+        <geometry>
+          <box size="${sensor_size}"/>
+        </geometry>
+        <material name="green">
+          <color rgba="0.0 1.0 0.0 1.0"/>
+        </material>
+      </visual>
+      <collision>
+        <geometry>
+          <box size="${sensor_size}"/>
+        </geometry>
+      </collision>
+    </link>
+    <joint name="joint_sharp_front" type="fixed">
+      <parent link="${parent}"/>
+      <child link="link_sharp_front"/>
+      <origin xyz="0.26 0 0.1" rpy="0 0 0"/>
+    </joint>
+
+    <!-- Sharp Left -->
+    <link name="link_sharp_left">
+      <visual>
+        <geometry>
+          <box size="${sensor_size}"/>
+        </geometry>
+        <material name="green"/>
+      </visual>
+      <collision>
+        <geometry>
+          <box size="${sensor_size}"/>
+        </geometry>
+      </collision>
+    </link>
+    <joint name="joint_sharp_left" type="fixed">
+      <parent link="${parent}"/>
+      <child link="link_sharp_left"/>
+      <origin xyz="0 ${ir_offset} 0.1" rpy="0 0 0"/>
+    </joint>
+
+    <!-- Sharp Right -->
+    <link name="link_sharp_right">
+      <visual>
+        <geometry>
+          <box size="${sensor_size}"/>
+        </geometry>
+        <material name="green"/>
+      </visual>
+      <collision>
+        <geometry>
+          <box size="${sensor_size}"/>
+        </geometry>
+      </collision>
+    </link>
+    <joint name="joint_sharp_right" type="fixed">
+      <parent link="${parent}"/>
+      <child link="link_sharp_right"/>
+      <origin xyz="0 -${ir_offset} 0.1" rpy="0 0 0"/>
+    </joint>
+
+    <!-- IMU -->
+    <link name="link_imu">
+      <visual>
+        <geometry>
+          <box size="0.025 0.025 0.015"/>
+        </geometry>
+        <material name="blue">
+          <color rgba="0.0 0.0 1.0 1.0"/>
+        </material>
+      </visual>
+      <collision>
+        <geometry>
+          <box size="0.025 0.025 0.015"/>
+        </geometry>
+      </collision>
+    </link>
+    <joint name="joint_imu" type="fixed">
+      <parent link="${parent}"/>
+      <child link="link_imu"/>
+      <origin xyz="0 0 0.1" rpy="0 0 0"/>
+    </joint>
+
+      <!-- Transmisiones para sensores IR -->
+    <transmission name="trans_ir_left">
+      <type>transmission_interface/SimpleTransmission</type>
+      <joint name="joint_sharp_left">
+        <hardwareInterface>hardware_interface/StateInterface</hardwareInterface>
+      </joint>
+      <actuator name="actuator_ir_left">
+        <hardwareInterface>hardware_interface/StateInterface</hardwareInterface>
+      </actuator>
+    </transmission>
+
+    <transmission name="trans_ir_center">
+      <type>transmission_interface/SimpleTransmission</type>
+      <joint name="joint_sharp_front">
+        <hardwareInterface>hardware_interface/StateInterface</hardwareInterface>
+      </joint>
+      <actuator name="actuator_ir_center">
+        <hardwareInterface>hardware_interface/StateInterface</hardwareInterface>
+      </actuator>
+    </transmission>
+
+    <transmission name="trans_ir_right">
+      <type>transmission_interface/SimpleTransmission</type>
+      <joint name="joint_sharp_right">
+        <hardwareInterface>hardware_interface/StateInterface</hardwareInterface>
+      </joint>
+      <actuator name="actuator_ir_right">
+        <hardwareInterface>hardware_interface/StateInterface</hardwareInterface>
+      </actuator>
+    </transmission>
+
+    <!-- Transmisiones para IMU -->
+    <transmission name="trans_imu_x">
+      <type>transmission_interface/SimpleTransmission</type>
+      <joint name="joint_imu">
+        <hardwareInterface>hardware_interface/StateInterface</hardwareInterface>
+      </joint>
+      <actuator name="actuator_imu_x">
+        <hardwareInterface>hardware_interface/StateInterface</hardwareInterface>
+      </actuator>
+    </transmission>
+
+    <transmission name="trans_imu_y">
+      <type>transmission_interface/SimpleTransmission</type>
+      <joint name="joint_imu">
+        <hardwareInterface>hardware_interface/StateInterface</hardwareInterface>
+      </joint>
+      <actuator name="actuator_imu_y">
+        <hardwareInterface>hardware_interface/StateInterface</hardwareInterface>
+      </actuator>
+    </transmission>
+
+    <transmission name="trans_imu_z">
+      <type>transmission_interface/SimpleTransmission</type>
+      <joint name="joint_imu">
+        <hardwareInterface>hardware_interface/StateInterface</hardwareInterface>
+      </joint>
+      <actuator name="actuator_imu_z">
+        <hardwareInterface>hardware_interface/StateInterface</hardwareInterface>
+      </actuator>
+    </transmission>
+
+
+  </xacro:macro>
+</robot>

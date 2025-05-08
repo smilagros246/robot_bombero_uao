@@ -12,6 +12,10 @@
   <depend>controller_manager</depend>
   <depend>hardware_interface</depend>
   <depend>pluginlib</depend>
+  <depend>robot_bombero_controller</depend>
+  <depend>std_msgs</depend>
+  <depend>robot_bombero_hardware</depend>
+
 
   <exec_depend>robot_bombero_description</exec_depend>
   <exec_depend>robot_bombero_msgs</exec_depend>

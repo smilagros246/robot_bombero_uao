@@ -1,0 +1,47 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="wheels">
+
+  <!-- Macro para crear las ruedas mecanum -->
+  <xacro:macro name="mecanum_wheel" params="name parent xyz rpy">
+    <link name="${name}">
+      <visual>
+        <geometry>
+          <cylinder radius="0.05" length="0.05"/>
+        </geometry>
+        <material name="grey">
+          <color rgba="0.5 0.5 0.5 1.0"/>
+        </material>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+      </visual>
+      <collision>
+        <geometry>
+          <cylinder radius="0.05" length="0.03"/>
+        </geometry>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+      </collision>
+      <inertial>
+        <mass value="0.2"/>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <inertia
+          ixx="0.01" ixy="0.0" ixz="0.0"
+          iyy="0.01" iyz="0.0"
+          izz="0.01"/>
+      </inertial>
+    </link>
+  
+    <joint name="${name}_joint" type="continuous">
+      <parent link="${parent}"/>
+      <child link="${name}"/>
+      <origin xyz="${xyz}" rpy="${rpy}"/>
+      <axis xyz="0 0 1"/>
+      <limit effort="100" velocity="1.0" lower="0" upper="3.14"/>
+    </joint>
+  </xacro:macro>
+
+  <xacro:mecanum_wheel name="link_fl_wheel" parent="base_link" xyz="0.25 0.17 0.05" rpy="1.5708 0 0"/>
+  <xacro:mecanum_wheel name="link_fr_wheel" parent="base_link" xyz="0.25 -0.17 0.05" rpy="1.5708 0 0"/>
+  <xacro:mecanum_wheel name="link_rl_wheel" parent="base_link" xyz="-0.25 0.17 0.05" rpy="1.5708 0 0"/>
+  <xacro:mecanum_wheel name="link_rr_wheel" parent="base_link" xyz="-0.25 -0.17 0.05" rpy="1.5708 0 0"/>
+
+
+</robot>

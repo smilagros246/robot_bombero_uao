@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<robot name="robot_bombero" xmlns:xacro="http://ros.org/wiki/xacro">
+
+  <!-- Incluir el chasis -->
+  <xacro:include filename="chasis.xacro"/>
+  <xacro:include filename="wheels.xacro"/>
+  <xacro:include filename="arm.xacro"/>
+  <xacro:include filename="sensors.xacro"/>
+  <xacro:robot_sensors parent="base_link"/>
+  <xacro:include filename="camera.xacro"/>
+  <xacro:robot_camera parent="link_wrist"/> 
+  <xacro:include filename="pump.xacro"/>
+
+  <xacro:include filename="ros2_control.xacro"/>
+  
+  <xacro:robot_ros2_control/>
+  
+  
+
+</robot>

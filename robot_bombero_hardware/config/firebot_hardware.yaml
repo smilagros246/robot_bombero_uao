@@ -1,0 +1,3 @@
+firebot_hardware:
+  ros__parameters:
+    port_name: "/dev/ttyUSB0"

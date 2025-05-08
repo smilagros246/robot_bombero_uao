@@ -13,8 +13,11 @@
   <depend>hardware_interface</depend>
   <depend>pluginlib</depend>
 
+  <exec_depend>ament_cmake</exec_depend>
+
   <export>
     <pluginlib plugin="${prefix}/pluginlib_mecanum.xml"/>
     <pluginlib plugin="${prefix}/pluginlib_arm.xml"/>
+    <build_type>ament_cmake</build_type>
   </export>
 </package>

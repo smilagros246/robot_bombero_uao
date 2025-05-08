@@ -22,7 +22,7 @@ if(BUILD_TESTING)
   ament_lint_auto_find_test_dependencies()
 endif()
 
-install(DIRECTORY urdf meshes launch ros2_control
+install(DIRECTORY urdf meshes launch ros2_control rviz
   DESTINATION share/${PROJECT_NAME}
 )
 

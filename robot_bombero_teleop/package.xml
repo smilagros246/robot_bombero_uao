@@ -2,16 +2,22 @@
 <?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="3">
   <name>robot_bombero_teleop</name>
-  <version>0.0.0</version>
-  <description>TODO: Package description</description>
-  <maintainer email="sofia.castano@uao.edu.co">sofia</maintainer>
-  <license>TODO: License declaration</license>
-
+  <version>0.0.1</version>
+  <description>Nodo de teleoperación por joystick para el robot bombero</description>
+  
+  <!-- Mantener la información del mantenedor actualizada -->
+  <maintainer email="sofia.castano@uao.edu.co">Sofía Milagros Castaño</maintainer>
+  
+  <!-- Definir licencia -->
+  <license>MIT</license>
+  
+  <!-- Dependencias de ejecución -->
   <depend>rclpy</depend>
   <depend>sensor_msgs</depend>
   <depend>geometry_msgs</depend>
   <depend>std_msgs</depend>
 
+  <!-- Dependencias de prueba -->
   <test_depend>ament_copyright</test_depend>
   <test_depend>ament_flake8</test_depend>
   <test_depend>ament_pep257</test_depend>
