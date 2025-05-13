@@ -133,7 +133,8 @@ hardware_interface::return_type FireBotHardwareInterface::write(const rclcpp::Ti
   cmd << ";";
 
   // Control de la bomba de agua con la variable water_pump_command_
-  if (water_pump_command_ < 0.3) cmd << "PUMP:PWM_BAJO;";
+  if (water_pump_command_ == 0) cmd << "PUMP:APAGADO;";
+  else if (0 < water_pump_command_ && water_pump_command_ < 0.4) cmd << "PUMP:PWM_BAJO;";
   else if (water_pump_command_ < 0.7) cmd << "PUMP:PWM_MEDIO;";
   else cmd << "PUMP:PWM_ALTO;";
 

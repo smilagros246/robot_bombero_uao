@@ -10,6 +10,7 @@ find_package(pluginlib REQUIRED)
 find_package(robot_bombero_controller REQUIRED)
 find_package(std_msgs REQUIRED)
 find_package(robot_bombero_hardware REQUIRED)
+find_package(robot_bombero_description REQUIRED)
 
 
 

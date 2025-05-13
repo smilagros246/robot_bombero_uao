@@ -32,13 +32,13 @@ def generate_launch_description():
         output='screen'
     )
 
-    # Nodo de visión (cámara RGB + térmica)
-    vision_node = Node(
-        package='robot_bombero_vision',
-        executable='vision_node',
-        name='vision_node',
-        output='screen'
-    )
+    # # Nodo de visión (cámara RGB + térmica)
+    # vision_node = Node(
+    #     package='robot_bombero_vision',
+    #     executable='vision_node',
+    #     name='vision_node',
+    #     output='screen'
+    # )
 
     # RViz para visualización
     rviz_config = os.path.join(
@@ -58,6 +58,6 @@ def generate_launch_description():
         declare_robot_description,
         joy_node,
         joy_teleop_node,
-        vision_node,
+        # vision_node,
         rviz_node
     ])

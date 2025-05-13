@@ -1,15 +1,15 @@
-import os
-from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
 from launch_ros.actions import Node
 from launch.actions import DeclareLaunchArgument
-from launch.substitutions import LaunchConfiguration
+from launch.substitutions import LaunchConfiguration, Command
+import os
+from ament_index_python.packages import get_package_share_directory
 
 def generate_launch_description():
     # Ruta al xacro
     robot_description_path = os.path.join(
         get_package_share_directory('robot_bombero_description'),
-        'urdf', 'robot_bombero.urdf.xacro'
+        'urdf', 'robot.urdf.xacro'
     )
 
     declare_robot_description = DeclareLaunchArgument(
@@ -22,7 +22,9 @@ def generate_launch_description():
         executable='robot_state_publisher',
         name='robot_state_publisher',
         output='screen',
-        parameters=[{'robot_description': LaunchConfiguration('robot_description')}]
+        parameters=[{
+            'robot_description': Command(['xacro ', robot_description_path])
+        }]
     )
 
     # Nodo ros2_control
@@ -44,8 +46,8 @@ def generate_launch_description():
         name='firebot_control_node',
         output='screen',
         parameters=[os.path.join(
-            get_package_share_directory('robot_bombero_control_node'),
-            'config', 'control_node.yaml'
+            get_package_share_directory('robot_bombero_bringup'),
+            'config', 'controllers.yaml'
         )],
         remappings=[('/cmd_vel', '/cmd_vel')]
     )

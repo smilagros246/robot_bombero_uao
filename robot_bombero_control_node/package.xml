@@ -15,10 +15,9 @@
   <depend>robot_bombero_controller</depend>
   <depend>std_msgs</depend>
   <depend>robot_bombero_hardware</depend>
+  <depend>robot_bombero_description</depend>
 
 
-  <exec_depend>robot_bombero_description</exec_depend>
-  <exec_depend>robot_bombero_msgs</exec_depend>
 
   <export>
     <build_type>ament_cmake</build_type>

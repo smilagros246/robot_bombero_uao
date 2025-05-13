@@ -14,8 +14,8 @@ controller_manager:
     mecanum_controller:
       type: "robot_bombero_controller::MecanumController"
       wheels:
-        - "front_left_wheel"
-        - "front_right_wheel"
-        - "back_left_wheel"
-        - "back_right_wheel"
+        - "link_fl_wheel_joint"
+        - "link_fr_wheel_joint"
+        - "link_rl_wheel_joint"
+        - "link_rr_wheel_joint"
       update_rate: 50  # Tasa de actualización en Hz
