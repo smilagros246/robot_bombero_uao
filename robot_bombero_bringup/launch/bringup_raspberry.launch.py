@@ -38,7 +38,7 @@ def generate_launch_description():
             'config', 'firebot_hardware.yaml'
         )]
     )
-
+    
     # Nodo de control personalizado
     firebot_control_node = Node(
         package='robot_bombero_control_node',
@@ -51,10 +51,26 @@ def generate_launch_description():
         )],
         remappings=[('/cmd_vel', '/cmd_vel')]
     )
+    
+    arm_controller_spawner = Node(
+        package='controller_manager',
+        executable='spawner',
+        arguments=['arm_controller'],
+        output='screen'
+    )
+
+    mecanum_controller_spawner = Node(
+    package='controller_manager',
+    executable='spawner',
+    arguments=['mecanum_controller'],
+    output='screen'
+    )
 
     return LaunchDescription([
         declare_robot_description,
         robot_state_publisher_node,
         ros2_control_node,
-        firebot_control_node
+        firebot_control_node,
+        arm_controller_spawner,
+        mecanum_controller_spawner
     ])

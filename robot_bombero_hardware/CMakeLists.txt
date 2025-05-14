@@ -63,6 +63,11 @@ install(TARGETS ${PROJECT_NAME}
   RUNTIME DESTINATION bin
 )
 
+install(
+  DIRECTORY config
+  DESTINATION share/${PROJECT_NAME}
+)
+
 install(FILES pluginlib.xml
   DESTINATION share/${PROJECT_NAME}
 )
