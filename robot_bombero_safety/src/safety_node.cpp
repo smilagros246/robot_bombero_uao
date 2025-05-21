@@ -63,7 +63,7 @@ bool SafetyNode::detect_obstacle()
 bool SafetyNode::detect_tilt()
 {
   // Umbral para velocidad angular (rad/s), ajusta según tu robot
-  const double gyro_threshold = 1.0;  // por ejemplo 1 rad/s (~57°/s)
+  const double gyro_threshold = 10.0;  // por ejemplo 1 rad/s (~57°/s)
 
   double wx = imu_data_.angular_velocity.x;
   double wy = imu_data_.angular_velocity.y;

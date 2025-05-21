@@ -113,6 +113,11 @@ controller_interface::CallbackReturn MecanumController::on_activate(const rclcpp
 
   cmd_vel_buffer_.writeFromNonRT(geometry_msgs::msg::Twist());
 
+  odom_pub_ = get_node()->create_publisher<nav_msgs::msg::Odometry>("/odom", 10);
+  tf_broadcaster_ = std::make_unique<tf2_ros::TransformBroadcaster>(get_node());
+  last_time_ = get_node()->now();
+
+
   return controller_interface::CallbackReturn::SUCCESS;
 }
 
@@ -164,6 +169,60 @@ controller_interface::return_type MecanumController::update(
   {
     RCLCPP_WARN(get_node()->get_logger(), "No hay suficientes interfaces de comando para las ruedas.");
   }
+
+  //Odometria
+  const double dt = (get_node()->now() - last_time_).seconds();
+
+  // Por ahora puedes usar los cmd_vel como dummy
+  const double vx = cmd_vel.linear.x;
+  const double vy = cmd_vel.linear.y;
+  const double vth = cmd_vel.angular.z;
+
+  // Integración de posición (en coordenadas locales)
+  const double delta_x = (vx * std::cos(theta_) - vy * std::sin(theta_)) * dt;
+  const double delta_y = (vx * std::sin(theta_) + vy * std::cos(theta_)) * dt;
+  const double delta_theta = vth * dt;
+
+  x_ += delta_x;
+  y_ += delta_y;
+  theta_ += delta_theta;
+
+  // Publicar odometría
+  geometry_msgs::msg::Quaternion odom_quat;
+  odom_quat.z = std::sin(theta_ * 0.5);
+  odom_quat.w = std::cos(theta_ * 0.5);
+
+  nav_msgs::msg::Odometry odom_msg;
+  odom_msg.header.stamp = get_node()->now();
+  odom_msg.header.frame_id = "odom";
+  odom_msg.child_frame_id = "base_link";
+
+  odom_msg.pose.pose.position.x = x_;
+  odom_msg.pose.pose.position.y = y_;
+  odom_msg.pose.pose.position.z = 0.0;
+  odom_msg.pose.pose.orientation = odom_quat;
+
+  odom_msg.twist.twist.linear.x = vx;
+  odom_msg.twist.twist.linear.y = vy;
+  odom_msg.twist.twist.angular.z = vth;
+
+  odom_pub_->publish(odom_msg);
+
+  // Publicar transformada
+  geometry_msgs::msg::TransformStamped odom_tf;
+  odom_tf.header.stamp = get_node()->now();
+  odom_tf.header.frame_id = "odom";
+  odom_tf.child_frame_id = "base_footprint";
+
+  odom_tf.transform.translation.x = x_;
+  odom_tf.transform.translation.y = y_;
+  odom_tf.transform.translation.z = 0.0;
+  odom_tf.transform.rotation = odom_quat;
+
+  tf_broadcaster_->sendTransform(odom_tf);
+
+  last_time_ = get_node()->now();
+
 
   return controller_interface::return_type::OK;
 }

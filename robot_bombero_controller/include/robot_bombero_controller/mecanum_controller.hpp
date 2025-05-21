@@ -5,6 +5,10 @@
 #include <string>
 #include <vector>
 
+#include "nav_msgs/msg/odometry.hpp"
+#include "tf2_ros/transform_broadcaster.h"
+#include "geometry_msgs/msg/transform_stamped.hpp"
+
 #include "controller_interface/controller_interface.hpp"
 #include "hardware_interface/types/hardware_interface_type_values.hpp"
 #include "rclcpp/rclcpp.hpp"
@@ -49,6 +53,19 @@ protected:
   double wheel_radius_{0.0325};  // metros
   double wheel_base_x_{0.15};   // distancia eje x Distancia entre ejes delanteros y traseros (de front-left a rear-left).
   double wheel_base_y_{0.13};  // distancia eje y pendiete medir Distancia entre las ruedas de un mismo eje (de left a right).
+
+  //Odometría 
+  // Broadcaster y mensaje de odometría
+  std::unique_ptr<tf2_ros::TransformBroadcaster> tf_broadcaster_;
+  rclcpp::Publisher<nav_msgs::msg::Odometry>::SharedPtr odom_pub_;
+
+  // Estado acumulado
+  double x_ = 0.0;
+  double y_ = 0.0;
+  double theta_ = 0.0;
+
+  // Último timestamp
+  rclcpp::Time last_time_;
 
   // Método para la cinemática inversa mecanum
   void mecanumInverseKinematics(
