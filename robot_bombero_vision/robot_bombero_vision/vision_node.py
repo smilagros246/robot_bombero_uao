@@ -2,77 +2,94 @@ import rclpy
 from rclpy.node import Node
 from sensor_msgs.msg import Image
 from cv_bridge import CvBridge
-import cv2
 import numpy as np
+import cv2
+import scipy.ndimage
 
-def detect_fire_by_heat(gray_thermal, threshold=200, min_pixels=5):
-    """
-    Detecta posible fuego si hay suficientes píxeles térmicos calientes.
-    :param thermal_image: Imagen térmica en escala de grises (mono8)
-    :param threshold: Umbral mínimo de temperatura (0-255)
-    :param min_pixels: Número mínimo de píxeles calientes para confirmar fuego
-    :return: True si hay fuego, False si no
-    """
-    hot_pixels = np.sum(gray_thermal > threshold)
-    return hot_pixels >= min_pixels
-
-class VisionNode(Node):
+class ThermalProcessorNode(Node):
     def __init__(self):
-        super().__init__('vision_node')
+        super().__init__('thermal_processor_node')
 
-        self.declare_parameter('image_topic_rgb', '/camera/rgb/image_raw')
-        self.declare_parameter('image_topic_thermal', '/camera/thermal/image_raw')
+        # Parámetros para los topics
+        self.declare_parameter('thermal_topic', '/camera/thermal/image_raw')
+        self.declare_parameter('rgb_topic', '/camera/rgb/image_raw')
+        thermal_topic = self.get_parameter('thermal_topic').get_parameter_value().string_value
+        rgb_topic = self.get_parameter('rgb_topic').get_parameter_value().string_value
 
-        self.image_topic_rgb = self.get_parameter('image_topic_rgb').get_parameter_value().string_value
-        self.image_topic_thermal = self.get_parameter('image_topic_thermal').get_parameter_value().string_value
-
-        self.subscriber_rgb = self.create_subscription(
+        # Subscripciones
+        self.subscription_thermal = self.create_subscription(
             Image,
-            self.image_topic_rgb,
-            self.rgb_image_callback,
+            thermal_topic,
+            self.thermal_callback,
+            10
+        )
+        self.subscription_rgb = self.create_subscription(
+            Image,
+            rgb_topic,
+            self.rgb_callback,
             10
         )
 
-        self.subscriber_thermal = self.create_subscription(
-            Image,
-            self.image_topic_thermal,
-            self.thermal_image_callback,
-            10
-        )
+        self.get_logger().info(f"Suscrito a cámara térmica: {thermal_topic}")
+        self.get_logger().info(f"Suscrito a cámara RGB: {rgb_topic}")
 
+        # Utilidades
         self.bridge = CvBridge()
-        self.rgb_image = None
-        self.thermal_image = None
+        self.interp_factor = 5
+        self.latest_rgb_frame = None
 
-    def rgb_image_callback(self, msg):
-        self.rgb_image = self.bridge.imgmsg_to_cv2(msg, desired_encoding='bgr8')
-        cv2.imshow("RGB Image", self.rgb_image)
-        cv2.waitKey(1)
+        # Ventana de visualización
+        cv2.namedWindow("Vista combinada", cv2.WINDOW_NORMAL)
 
-        # Aquí se insertará la lógica de IA para detectar fuego en imagen RGB
-        # if detect_fire(self.rgb_image):
-        #     self.get_logger().info("Posible fuego detectado en RGB")
+    def rgb_callback(self, msg):
+        try:
+            self.latest_rgb_frame = self.bridge.imgmsg_to_cv2(msg, desired_encoding='bgr8')
+        except Exception as e:
+            self.get_logger().error(f"Error procesando imagen RGB: {e}")
 
-    def thermal_image_callback(self, msg):
-        self.thermal_image = self.bridge.imgmsg_to_cv2(msg, desired_encoding='bgr8')
-        gray_thermal = cv2.cvtColor(self.thermal_image, cv2.COLOR_BGR2GRAY)
-        cv2.imshow("Thermal Image", self.thermal_image)
-        cv2.waitKey(1)
+    def thermal_callback(self, msg):
+        try:
+            thermal_image = self.bridge.imgmsg_to_cv2(msg, desired_encoding='bgr8')
+            gray = cv2.cvtColor(thermal_image, cv2.COLOR_BGR2GRAY)
+            thermal_resized = cv2.resize(gray, (8, 8), interpolation=cv2.INTER_LINEAR)
+            data_interp = scipy.ndimage.zoom(thermal_resized, self.interp_factor, order=3)
 
-        if detect_fire_by_heat(self.thermal_image):
-            self.get_logger().warn("Calor extremo detectado — Posible fuego (sensor térmico)")
+            # Punto más caliente
+            max_idx = np.unravel_index(np.argmax(data_interp), data_interp.shape)
+            max_temp = data_interp[max_idx]
+
+            # Colormap y anotación
+            thermal_colored = cv2.applyColorMap(data_interp.astype(np.uint8), cv2.COLORMAP_INFERNO)
+            cv2.circle(thermal_colored, (max_idx[1], max_idx[0]), 5, (255, 255, 255), 2)
+            cv2.putText(thermal_colored, f'{max_temp:.1f}°C', (max_idx[1]+5, max_idx[0]-5),
+                        cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255,255,255), 1)
+
+            # === ESPACIO PARA INTEGRAR MODELO DE DETECCIÓN DE FUEGO ===
+            # if self.latest_rgb_frame is not None:
+            #     fire_detected = fire_model.predict(thermal_colored, self.latest_rgb_frame)
+            #     if fire_detected:
+            #         self.get_logger().info("¡Fuego detectado!")
+
+            # Visualización combinada (solo si hay RGB disponible)
+            if self.latest_rgb_frame is not None:
+                rgb_resized = cv2.resize(self.latest_rgb_frame, (thermal_colored.shape[1], thermal_colored.shape[0]))
+                combined = np.hstack((rgb_resized, thermal_colored))
+                cv2.imshow("Vista combinada", combined)
+            else:
+                cv2.imshow("Vista combinada", thermal_colored)
+
+            cv2.waitKey(1)
+        except Exception as e:
+            self.get_logger().error(f"Error procesando imagen térmica: {e}")
 
 def main(args=None):
     rclpy.init(args=args)
-    node = VisionNode()
+    node = ThermalProcessorNode()
     try:
         rclpy.spin(node)
     except KeyboardInterrupt:
         pass
     finally:
-        cv2.destroyAllWindows()
         node.destroy_node()
         rclpy.shutdown()
-
-if __name__ == '__main__':
-    main()
+        cv2.destroyAllWindows()
