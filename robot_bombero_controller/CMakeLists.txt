@@ -12,31 +12,35 @@ find_package(rclcpp REQUIRED)
 find_package(controller_interface REQUIRED)
 find_package(hardware_interface REQUIRED)
 find_package(pluginlib REQUIRED)
+find_package(realtime_tools REQUIRED)
+find_package(sensor_msgs REQUIRED)
+find_package(std_msgs REQUIRED)
+
 
 include_directories(include)
 
-# Controlador mecanum
-add_library(mecanum_controller SHARED
+# Biblioteca compartida única con ambos controladores
+add_library(${PROJECT_NAME} SHARED
   src/mecanum_controller.cpp
-)
-ament_target_dependencies(mecanum_controller
-  rclcpp controller_interface hardware_interface pluginlib
-)
-pluginlib_export_plugin_description_file(controller_interface pluginlib_mecanum.xml)
-
-# Controlador del brazo servo
-add_library(arm_servo_controller SHARED
   src/arm_servo_controller.cpp
+  src/sensor_state_publisher_controller.cpp
 )
-ament_target_dependencies(arm_servo_controller
-  rclcpp controller_interface hardware_interface pluginlib
+
+ament_target_dependencies(${PROJECT_NAME}
+  rclcpp
+  controller_interface
+  hardware_interface
+  pluginlib
+  realtime_tools
+  sensor_msgs
+  std_msgs
 )
-pluginlib_export_plugin_description_file(controller_interface pluginlib_arm.xml)
+
+pluginlib_export_plugin_description_file(controller_interface plugins.xml)
 
 # Instalación
-install(TARGETS
-  mecanum_controller
-  arm_servo_controller
+install(
+  TARGETS ${PROJECT_NAME}
   DESTINATION lib
 )
 
@@ -45,12 +49,11 @@ install(DIRECTORY include/
 )
 
 install(FILES
-  pluginlib_mecanum.xml
-  pluginlib_arm.xml
+  plugins.xml
   DESTINATION share/${PROJECT_NAME}
 )
 
 ament_export_include_directories(include)
-ament_export_libraries(mecanum_controller arm_servo_controller)
+ament_export_libraries(${PROJECT_NAME})
 
 ament_package()

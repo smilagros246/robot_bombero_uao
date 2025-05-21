@@ -11,6 +11,9 @@
   <xacro:robot_camera parent="link_wrist"/> 
   <xacro:include filename="pump.xacro"/>
 
+  <!-- <xacro:include filename="transmissions.xacro"/>
+  <xacro:mecanum_transmissions/> -->
+
   <xacro:include filename="ros2_control.xacro"/>
   <xacro:robot_ros2_control/>
   

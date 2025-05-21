@@ -11,9 +11,6 @@ find_package(hardware_interface REQUIRED)
 find_package(pluginlib REQUIRED)
 find_package(rclcpp REQUIRED)
 
-# Buscar la librería LibSerial manualmente
-find_library(LIBSERIAL_LIB NAMES serial libserial PATHS /usr/lib /usr/local/lib REQUIRED)
-
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
   # the following line skips the linter which checks for copyrights
@@ -28,19 +25,15 @@ endif()
 
 include_directories(
   include
-  /usr/include
-  /usr/local/include
 )
 
 # Crear la librería de hardware
 add_library(${PROJECT_NAME}
+  SHARED
   src/firebot_hardware_interface.cpp
+  src/serial_port.cpp  
 )
 
-# Enlazar con LibSerial y otras dependencias
-target_link_libraries(${PROJECT_NAME}
-  ${LIBSERIAL_LIB}
-)
 
 ament_target_dependencies(${PROJECT_NAME}
   hardware_interface
@@ -48,8 +41,6 @@ ament_target_dependencies(${PROJECT_NAME}
   rclcpp
 )
 
-# Pluginlib
-pluginlib_export_plugin_description_file(hardware_interface pluginlib.xml)
 
 # Instalación
 install(DIRECTORY include/
@@ -63,14 +54,12 @@ install(TARGETS ${PROJECT_NAME}
   RUNTIME DESTINATION bin
 )
 
-install(
-  DIRECTORY config
-  DESTINATION share/${PROJECT_NAME}
-)
-
 install(FILES pluginlib.xml
   DESTINATION share/${PROJECT_NAME}
 )
+
+# Pluginlib
+pluginlib_export_plugin_description_file(hardware_interface pluginlib.xml)
 
 # Exportar
 ament_export_dependencies(hardware_interface pluginlib rclcpp)

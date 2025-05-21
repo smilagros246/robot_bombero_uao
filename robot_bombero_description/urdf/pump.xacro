@@ -10,9 +10,10 @@
   </material>
   </visual>
 </link>
-<joint name="joint_water_pump" type="fixed">
+<joint name="joint_water_pump" type="continuous">
   <parent link="chassis"/> 
   <child link="water_pump_link"/>
   <origin xyz="-0.1 0 0.1" rpy="0 1.57 1.57"/>
+  <limit effort="100" velocity="1.0"/>
 </joint>
 </robot>

@@ -1,0 +1,56 @@
+digraph G {
+node [shape=box];
+"base_footprint" [label="base_footprint"];
+"base_link" [label="base_link"];
+"chassis" [label="chassis"];
+"link_waist" [label="link_waist"];
+"link_shoulder" [label="link_shoulder"];
+"link_elbow" [label="link_elbow"];
+"link_wrist" [label="link_wrist"];
+"link_camera" [label="link_camera"];
+"water_pump_link" [label="water_pump_link"];
+"link_imu" [label="link_imu"];
+"link_sharp_front" [label="link_sharp_front"];
+"link_sharp_left" [label="link_sharp_left"];
+"link_sharp_right" [label="link_sharp_right"];
+"link_thermal_sensor" [label="link_thermal_sensor"];
+"link_fl_wheel" [label="link_fl_wheel"];
+"link_fr_wheel" [label="link_fr_wheel"];
+"link_rl_wheel" [label="link_rl_wheel"];
+"link_rr_wheel" [label="link_rr_wheel"];
+node [shape=ellipse, color=blue, fontcolor=blue];
+"base_footprint" -> "base_footprint_joint" [label="xyz: 0 0 0 \nrpy: 0 -0 0"]
+"base_footprint_joint" -> "base_link"
+"base_link" -> "chassis_joint" [label="xyz: 0 0 0.12 \nrpy: 0 -0 0"]
+"chassis_joint" -> "chassis"
+"chassis" -> "joint_waist" [label="xyz: 0.1 0 0.1 \nrpy: 0 -0 0"]
+"joint_waist" -> "link_waist"
+"link_waist" -> "joint_shoulder" [label="xyz: 0 0 0.05 \nrpy: 0 -0 0"]
+"joint_shoulder" -> "link_shoulder"
+"link_shoulder" -> "joint_elbow" [label="xyz: 0 0 0.3 \nrpy: 0 -0 0"]
+"joint_elbow" -> "link_elbow"
+"link_elbow" -> "joint_wrist" [label="xyz: 0 0 0.2 \nrpy: 0 -0 0"]
+"joint_wrist" -> "link_wrist"
+"link_wrist" -> "joint_camera" [label="xyz: 0 0 0.1 \nrpy: 0 -0 0"]
+"joint_camera" -> "link_camera"
+"chassis" -> "joint_water_pump" [label="xyz: -0.1 0 0.1 \nrpy: 0 1.5708 1.57"]
+"joint_water_pump" -> "water_pump_link"
+"base_link" -> "joint_imu" [label="xyz: 0 0 0.1 \nrpy: 0 -0 0"]
+"joint_imu" -> "link_imu"
+"base_link" -> "joint_sharp_front" [label="xyz: 0.26 0 0.1 \nrpy: 0 -0 0"]
+"joint_sharp_front" -> "link_sharp_front"
+"base_link" -> "joint_sharp_left" [label="xyz: 0 0.15 0.1 \nrpy: 0 -0 0"]
+"joint_sharp_left" -> "link_sharp_left"
+"base_link" -> "joint_sharp_right" [label="xyz: 0 -0.15 0.1 \nrpy: 0 -0 0"]
+"joint_sharp_right" -> "link_sharp_right"
+"base_link" -> "joint_thermal_sensor" [label="xyz: 0.26 0.05 0.1 \nrpy: 0 -0 0"]
+"joint_thermal_sensor" -> "link_thermal_sensor"
+"base_link" -> "link_fl_wheel_joint" [label="xyz: 0.25 0.17 0.05 \nrpy: 1.5708 -0 0"]
+"link_fl_wheel_joint" -> "link_fl_wheel"
+"base_link" -> "link_fr_wheel_joint" [label="xyz: 0.25 -0.17 0.05 \nrpy: 1.5708 -0 0"]
+"link_fr_wheel_joint" -> "link_fr_wheel"
+"base_link" -> "link_rl_wheel_joint" [label="xyz: -0.25 0.17 0.05 \nrpy: 1.5708 -0 0"]
+"link_rl_wheel_joint" -> "link_rl_wheel"
+"base_link" -> "link_rr_wheel_joint" [label="xyz: -0.25 -0.17 0.05 \nrpy: 1.5708 -0 0"]
+"link_rr_wheel_joint" -> "link_rr_wheel"
+}

@@ -1,0 +1,17 @@
+<library path="robot_bombero_controller">
+  <class name="robot_bombero_controller/MecanumController"
+         type="robot_bombero_controller::MecanumController"
+         base_class_type="controller_interface::ControllerInterface">
+    <description>Controlador para la base con ruedas mecanum.</description>
+  </class>
+  <class name="robot_bombero_controller/ArmServoController"
+         type="robot_bombero_controller::ArmServoController"
+         base_class_type="controller_interface::ControllerInterface">
+    <description>Controlador para el brazo aspersor.</description>
+  </class>
+  <class name="robot_bombero_controller/SensorStatePublisherController"
+         type="robot_bombero_controller::SensorStatePublisherController"
+         base_class_type="controller_interface::ControllerInterface">
+    <description>Lectura de IMU y sensores Sharp.</description>
+  </class>
+</library>

@@ -1,115 +1,193 @@
 #include "robot_bombero_controller/mecanum_controller.hpp"
 
-#include <rclcpp/logging.hpp>
-#include <pluginlib/class_list_macros.hpp>
-#include <geometry_msgs/msg/twist.hpp>
+#include <stddef.h>
 #include <algorithm>
+#include <memory>
+#include <string>
+#include <vector>
 
+#include "rclcpp/qos.hpp"
+#include "rclcpp/time.hpp"
+#include "rclcpp_lifecycle/node_interfaces/lifecycle_node_interface.hpp"
+#include "rclcpp_lifecycle/state.hpp"
+
+using config_type = controller_interface::interface_configuration_type;
 namespace robot_bombero_controller
 {
 
 MecanumController::MecanumController()
-: cmd_vel_x_(0.0), cmd_vel_y_(0.0), cmd_vel_yaw_(0.0)
+: controller_interface::ControllerInterface()
 {}
 
 controller_interface::CallbackReturn MecanumController::on_init()
 {
-    // Declarar el parámetro dinámico para los nombres de las ruedas
-    get_node()->declare_parameter<std::vector<std::string>>("wheels",
-        {"wheel_front_left", "wheel_front_right", "wheel_back_left", "wheel_back_right"});
+  RCLCPP_INFO(get_node()->get_logger(), "on_init: Inicializando controlador Mecanum...");
 
-    // Obtener los nombres de las ruedas desde los parámetros
-    get_node()->get_parameter("wheels", wheel_names_);
+  joint_names_ = auto_declare<std::vector<std::string>>("joints", {
+    "link_fl_wheel_joint",
+    "link_fr_wheel_joint",
+    "link_rl_wheel_joint",
+    "link_rr_wheel_joint"
+  });
 
-    // Validar el número de ruedas
-    if (wheel_names_.size() != 4)
-    {
-        RCLCPP_ERROR(get_node()->get_logger(), "Se esperan 4 ruedas, pero se encontraron %lu", wheel_names_.size());
-        return controller_interface::CallbackReturn::ERROR;
-    }
+  command_interface_types_ = auto_declare<std::vector<std::string>>("command_interfaces", {
+    hardware_interface::HW_IF_VELOCITY
+  });
 
-    return controller_interface::CallbackReturn::SUCCESS;
+  state_interface_types_ = auto_declare<std::vector<std::string>>("state_interfaces", {
+    hardware_interface::HW_IF_VELOCITY
+  });
+
+  return controller_interface::CallbackReturn::SUCCESS;
 }
 
 controller_interface::InterfaceConfiguration MecanumController::command_interface_configuration() const
 {
-    std::vector<std::string> wheel_velocity_interfaces;
-    for (const auto &wheel_name : wheel_names_)
-    {
-        wheel_velocity_interfaces.push_back(wheel_name + "_velocity");
-    }
+  controller_interface::InterfaceConfiguration config;
+  config.type = controller_interface::interface_configuration_type::INDIVIDUAL;
 
-    return {
-        controller_interface::interface_configuration_type::INDIVIDUAL,
-        wheel_velocity_interfaces};
+  for (const auto & joint_name : joint_names_)
+  {
+    for (const auto & interface_type : command_interface_types_)
+    {
+      config.names.push_back(joint_name + "/" + interface_type);
+    }
+  }
+
+  return config;
 }
 
 controller_interface::InterfaceConfiguration MecanumController::state_interface_configuration() const
 {
-    return {
-        controller_interface::interface_configuration_type::NONE,
-        {}};
+  controller_interface::InterfaceConfiguration conf = {
+    controller_interface::interface_configuration_type::INDIVIDUAL, {}};
+
+  conf.names.reserve(joint_names_.size() * state_interface_types_.size());
+  for (const auto & joint_name : joint_names_)
+  {
+    for (const auto & interface_type : state_interface_types_)
+    {
+      conf.names.push_back(joint_name + "/" + interface_type);
+    }
+  }
+
+  return conf;
+}
+
+
+controller_interface::CallbackReturn MecanumController::on_configure(const rclcpp_lifecycle::State &)
+{
+  auto node = get_node();
+  RCLCPP_INFO(node->get_logger(), "on_configure: Configurando controlador...");
+
+  // Leer parámetros si están disponibles
+  node->get_parameter_or("wheel_radius", wheel_radius_, wheel_radius_);
+  node->get_parameter_or("wheel_base_x", wheel_base_x_, wheel_base_x_);
+  node->get_parameter_or("wheel_base_y", wheel_base_y_, wheel_base_y_);
+
+  // Suscripción a cmd_vel
+  cmd_vel_sub_ = node->create_subscription<geometry_msgs::msg::Twist>(
+    "/cmd_vel", rclcpp::SystemDefaultsQoS(),
+    std::bind(&MecanumController::cmdVelCallback, this, std::placeholders::_1));
+
+  RCLCPP_INFO(node->get_logger(), "on_configure: Parámetros leídos y suscripción creada.");
+
+  return controller_interface::CallbackReturn::SUCCESS;
 }
 
 controller_interface::CallbackReturn MecanumController::on_activate(const rclcpp_lifecycle::State &)
 {
-    RCLCPP_INFO(get_node()->get_logger(), "Activando controlador de Mecanum");
+  RCLCPP_INFO(get_node()->get_logger(), "on_activate: Activando controlador...");
 
-    auto handle = std::find_if(
-    command_interfaces_.begin(), command_interfaces_.end(),
-    [&](const auto &interface) {
-        return std::any_of(wheel_names_.begin(), wheel_names_.end(), 
-                            [&](const std::string &name) {
-                                return interface.get_name() == name + "_velocity";
-                            });
-    });
+  // Limpiar vectores
+  wheel_command_interfaces_.clear();
+  wheel_state_interfaces_.clear();
 
-    for (const auto& name : wheel_names_) {
-    RCLCPP_ERROR(get_node()->get_logger(), "Command interface not found for %s", name.c_str());
-    }
-    joint_handles_.push_back(std::move(*handle));
+  for (auto & interface : command_interfaces_) {
+   wheel_command_interfaces_.push_back(std::ref(interface));
+  }
 
-    return controller_interface::CallbackReturn::SUCCESS;
+  for (auto & interface : state_interfaces_) {
+   wheel_state_interfaces_.push_back(std::ref(interface));
+  }
+
+  cmd_vel_buffer_.writeFromNonRT(geometry_msgs::msg::Twist());
+
+  return controller_interface::CallbackReturn::SUCCESS;
 }
+
 
 controller_interface::CallbackReturn MecanumController::on_deactivate(const rclcpp_lifecycle::State &)
 {
-    RCLCPP_INFO(get_node()->get_logger(), "Desactivando controlador mecanum");
-    joint_handles_.clear();  // opcional: liberar interfaces
-    return controller_interface::CallbackReturn::SUCCESS;
+  RCLCPP_INFO(get_node()->get_logger(), "on_deactivate: Desactivando controlador...");
+
+  // Limpieza de suscripción
+  cmd_vel_sub_.reset();
+
+  // Detener motores
+  for (auto & interface : wheel_command_interfaces_) {
+    interface.get().set_value(0.0);  // usando .get() por si usas std::ref
+  }
+
+  // Liberar interfaces de comando para permitir que otros controladores las usen
+  release_interfaces();
+
+  return controller_interface::CallbackReturn::SUCCESS;
 }
 
-void MecanumController::set_cmd_vel(double x, double y, double yaw)
+
+
+void MecanumController::cmdVelCallback(const geometry_msgs::msg::Twist::SharedPtr msg)
 {
-    cmd_vel_x_ = x;
-    cmd_vel_y_ = y;
-    cmd_vel_yaw_ = yaw;
+  cmd_vel_buffer_.writeFromNonRT(*msg);
 }
 
-controller_interface::return_type MecanumController::update(const rclcpp::Time & /*time*/, const rclcpp::Duration & /*period*/)
+controller_interface::return_type MecanumController::update(
+  const rclcpp::Time &, const rclcpp::Duration &)
 {
-    // Cálculo de velocidades para cada rueda según cinemática Mecanum
-    double v1 = cmd_vel_x_ - cmd_vel_y_ - cmd_vel_yaw_;
-    double v2 = cmd_vel_x_ + cmd_vel_y_ + cmd_vel_yaw_;
-    double v3 = cmd_vel_x_ + cmd_vel_y_ - cmd_vel_yaw_;
-    double v4 = cmd_vel_x_ - cmd_vel_y_ + cmd_vel_yaw_;
+  // Leer el último comando cmd_vel recibido (de forma segura en tiempo real)
+  const auto cmd_vel = *(cmd_vel_buffer_.readFromRT());
 
-    double max_speed = 255.0;
+  // Calcular velocidades individuales para cada rueda usando cinemática inversa
+  double v1, v2, v3, v4;
+  mecanumInverseKinematics(cmd_vel.linear.x, cmd_vel.linear.y, cmd_vel.angular.z, v1, v2, v3, v4);
 
-    std::vector<double> wheel_velocities = {
-        std::clamp(v1 * max_speed, 0.0, max_speed),
-        std::clamp(v2 * max_speed, 0.0, max_speed),
-        std::clamp(v3 * max_speed, 0.0, max_speed),
-        std::clamp(v4 * max_speed, 0.0, max_speed)};
+  // Verificar que tengamos interfaces para las 4 ruedas
+  if (wheel_command_interfaces_.size() == 4)
+  {
+    wheel_command_interfaces_[0].get().set_value(v1);
+    wheel_command_interfaces_[1].get().set_value(v2);
+    wheel_command_interfaces_[2].get().set_value(v3);
+    wheel_command_interfaces_[3].get().set_value(v4);
+  }
+  else
+  {
+    RCLCPP_WARN(get_node()->get_logger(), "No hay suficientes interfaces de comando para las ruedas.");
+  }
 
-    for (size_t i = 0; i < joint_handles_.size(); ++i)
-    {
-        joint_handles_[i].set_value(wheel_velocities[i]);
-    }
-
-    return controller_interface::return_type::OK;
+  return controller_interface::return_type::OK;
 }
 
-} // namespace robot_bombero_controller
 
+void MecanumController::mecanumInverseKinematics(
+  double vx, double vy, double omega,
+  double &v1, double &v2, double &v3, double &v4)
+{
+  // Fórmulas estándar para mecanum wheels
+  // v_wheel = (1 / r) * (vx ± vy ± (L + W) * omega)
+  // Ajusta signos según tu convención de ejes y orden de ruedas
+
+  double L = wheel_base_x_;
+  double W = wheel_base_y_;
+  double r = wheel_radius_;
+
+  v1 = (1.0 / r) * (vx - vy - (L + W) * omega);  // Front left
+  v2 = (1.0 / r) * (vx + vy + (L + W) * omega);  // Front right
+  v3 = (1.0 / r) * (vx + vy - (L + W) * omega);  // Rear left
+  v4 = (1.0 / r) * (vx - vy + (L + W) * omega);  // Rear right
+}
+
+}  // namespace mecanum_controller
+
+#include "pluginlib/class_list_macros.hpp"
 PLUGINLIB_EXPORT_CLASS(robot_bombero_controller::MecanumController, controller_interface::ControllerInterface)

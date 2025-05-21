@@ -12,12 +12,10 @@
   <depend>controller_manager</depend>
   <depend>hardware_interface</depend>
   <depend>pluginlib</depend>
-  <depend>robot_bombero_controller</depend>
   <depend>std_msgs</depend>
+  <depend>sensor_msgs</depend> <!-- Añadido sensor_msgs para mensajes IMU y Range -->
   <depend>robot_bombero_hardware</depend>
   <depend>robot_bombero_description</depend>
-
-
 
   <export>
     <build_type>ament_cmake</build_type>

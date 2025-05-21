@@ -1,0 +1,54 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://ros.org/wiki/xacro">
+
+  <xacro:macro name="mecanum_transmissions" params="">
+    <!-- Transmisión para la rueda delantera izquierda -->
+    <transmission name="transmission_link_fl_wheel_joint">
+      <type>transmission_interface/SimpleTransmission</type>
+      <joint name="link_fl_wheel_joint">
+        <hardwareInterface>hardware_interface/VelocityJointInterface</hardwareInterface>
+      </joint>
+      <actuator name="motor_fl_wheel">
+        <hardwareInterface>hardware_interface/VelocityJointInterface</hardwareInterface>
+        <mechanicalReduction>1</mechanicalReduction>
+      </actuator>
+    </transmission>
+
+    <!-- Transmisión para la rueda delantera derecha -->
+    <transmission name="transmission_link_fr_wheel_joint">
+      <type>transmission_interface/SimpleTransmission</type>
+      <joint name="link_fr_wheel_joint">
+        <hardwareInterface>hardware_interface/VelocityJointInterface</hardwareInterface>
+      </joint>
+      <actuator name="motor_fr_wheel">
+        <hardwareInterface>hardware_interface/VelocityJointInterface</hardwareInterface>
+        <mechanicalReduction>1</mechanicalReduction>
+      </actuator>
+    </transmission>
+
+    <!-- Transmisión para la rueda trasera izquierda -->
+    <transmission name="transmission_link_rl_wheel_joint">
+      <type>transmission_interface/SimpleTransmission</type>
+      <joint name="link_rl_wheel_joint">
+        <hardwareInterface>hardware_interface/VelocityJointInterface</hardwareInterface>
+      </joint>
+      <actuator name="motor_rl_wheel">
+        <hardwareInterface>hardware_interface/VelocityJointInterface</hardwareInterface>
+        <mechanicalReduction>1</mechanicalReduction>
+      </actuator>
+    </transmission>
+
+    <!-- Transmisión para la rueda trasera derecha -->
+    <transmission name="transmission_link_rr_wheel_joint">
+      <type>transmission_interface/SimpleTransmission</type>
+      <joint name="link_rr_wheel_joint">
+        <hardwareInterface>hardware_interface/VelocityJointInterface</hardwareInterface>
+      </joint>
+      <actuator name="motor_rr_wheel">
+        <hardwareInterface>hardware_interface/VelocityJointInterface</hardwareInterface>
+        <mechanicalReduction>1</mechanicalReduction>
+      </actuator>
+    </transmission>
+  </xacro:macro>
+
+</robot>

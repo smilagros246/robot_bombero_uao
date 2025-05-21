@@ -34,14 +34,14 @@
       <child link="${name}"/>
       <origin xyz="${xyz}" rpy="${rpy}"/>
       <axis xyz="0 0 1"/>
-      <limit effort="100" velocity="1.0" lower="0" upper="3.14"/>
+      <limit effort="100" velocity="1.0"/>
     </joint>
   </xacro:macro>
 
-  <xacro:mecanum_wheel name="link_fl_wheel" parent="base_link" xyz="0.25 0.17 0.05" rpy="1.5708 0 0"/>
-  <xacro:mecanum_wheel name="link_fr_wheel" parent="base_link" xyz="0.25 -0.17 0.05" rpy="1.5708 0 0"/>
-  <xacro:mecanum_wheel name="link_rl_wheel" parent="base_link" xyz="-0.25 0.17 0.05" rpy="1.5708 0 0"/>
-  <xacro:mecanum_wheel name="link_rr_wheel" parent="base_link" xyz="-0.25 -0.17 0.05" rpy="1.5708 0 0"/>
+  <xacro:mecanum_wheel name="link_fl_wheel" parent="base_link" xyz="0.25 0.17 0.05" rpy="-1.5708 0 0"/>
+  <xacro:mecanum_wheel name="link_fr_wheel" parent="base_link" xyz="0.25 -0.17 0.05" rpy="-1.5708 0 0"/>
+  <xacro:mecanum_wheel name="link_rl_wheel" parent="base_link" xyz="-0.25 0.17 0.05" rpy="-1.5708 0 0"/>
+  <xacro:mecanum_wheel name="link_rr_wheel" parent="base_link" xyz="-0.25 -0.17 0.05" rpy="-1.5708 0 0"/>
 
 
 </robot>

@@ -124,7 +124,7 @@
   <joint name="joint_shoulder" type="revolute">
     <parent link="link_waist"/>
     <child link="link_shoulder"/>
-    <origin xyz="0 0 ${height_waist}" rpy="0 0 0"/>
+    <origin xyz="0 0 ${height_waist}" rpy="0 -1.5708 0"/>
     <axis xyz="0 1 0"/>
     <limit effort="100" velocity="1.0" lower="-1.5" upper="1.5"/>
   </joint>
@@ -132,7 +132,7 @@
   <joint name="joint_elbow" type="revolute">
     <parent link="link_shoulder"/>
     <child link="link_elbow"/>
-    <origin xyz="0 0 ${height_shoulder}" rpy="0 0 0"/>
+    <origin xyz="0 0 ${height_shoulder}" rpy="0 -1.5708 0"/>
     <axis xyz="0 1 0"/>
     <limit effort="100" velocity="1.0" lower="-1.5" upper="1.5"/>
   </joint>
@@ -140,7 +140,7 @@
   <joint name="joint_wrist" type="revolute">
     <parent link="link_elbow"/>
     <child link="link_wrist"/>
-    <origin xyz="0 0 ${height_elbow}" rpy="0 0 0"/>
+    <origin xyz="0 0 ${height_elbow}" rpy="0 -1.5708 0"/>
     <axis xyz="0 1 0"/>
     <limit effort="100" velocity="1.0" lower="-1.5" upper="1.5"/>
   </joint>

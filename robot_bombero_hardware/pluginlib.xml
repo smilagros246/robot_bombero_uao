@@ -1,9 +1,8 @@
 <library path="robot_bombero_hardware">
-  <class name="robot_bombero_hardware/FirebotHardwareInterface"
-         type="robot_bombero_hardware::FirebotHardwareInterface"
-         base_class_type="hardware_interface::SystemInterface">
-    <description>
-      Interfaz de hardware personalizada para el robot bombero.
-    </description>
+  <class 
+    name="robot_bombero_hardware/FireBotHardwareInterface"
+    type="robot_bombero_hardware::FireBotHardwareInterface"
+    base_class_type="hardware_interface::SystemInterface">
+    <description>Interfaz de hardware para el robot bombero.</description>
   </class>
 </library>

@@ -12,12 +12,15 @@
   <depend>controller_interface</depend>
   <depend>hardware_interface</depend>
   <depend>pluginlib</depend>
+  <depend>realtime_tools</depend>
+  <depend>sensor_msgs</depend>
+  <depend>std_msgs</depend>
+
 
   <exec_depend>ament_cmake</exec_depend>
 
   <export>
-    <pluginlib plugin="${prefix}/pluginlib_mecanum.xml"/>
-    <pluginlib plugin="${prefix}/pluginlib_arm.xml"/>
+    <pluginlib plugin="${prefix}/share/robot_bombero_controller/plugins.xml"/>
     <build_type>ament_cmake</build_type>
   </export>
 </package>

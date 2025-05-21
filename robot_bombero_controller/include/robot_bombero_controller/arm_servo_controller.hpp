@@ -1,48 +1,59 @@
-#ifndef ARM_SERVO_CONTROLLER__ARM_SERVO_CONTROLLER_HPP_
-#define ARM_SERVO_CONTROLLER__ARM_SERVO_CONTROLLER_HPP_
+#pragma once
 
-#include <memory>
+#include <controller_interface/controller_interface.hpp>
+#include <hardware_interface/types/hardware_interface_type_values.hpp>
+#include <rclcpp_lifecycle/node_interfaces/lifecycle_node_interface.hpp>
+#include <rclcpp/subscription.hpp>
+#include <realtime_tools/realtime_buffer.hpp>
+#include <std_msgs/msg/float64_multi_array.hpp>
+#include <std_msgs/msg/float64.hpp>
+
 #include <string>
+#include <algorithm> 
 #include <vector>
-#include <utility>
-#include <algorithm>
 
-#include "controller_interface/controller_interface.hpp"
-#include "hardware_interface/loaned_command_interface.hpp"
-
-
-namespace arm_servo_controller
+namespace robot_bombero_controller
 {
 
 class ArmServoController : public controller_interface::ControllerInterface
 {
 public:
-  ArmServoController() = default;
+  ArmServoController();
 
   controller_interface::CallbackReturn on_init() override;
-  controller_interface::CallbackReturn on_configure(const rclcpp_lifecycle::State & previous_state) override;
-  controller_interface::CallbackReturn on_activate(const rclcpp_lifecycle::State & previous_state) override;
-  controller_interface::CallbackReturn on_deactivate(const rclcpp_lifecycle::State & previous_state) override;
-  controller_interface::return_type update(const rclcpp::Time & time, const rclcpp::Duration & period) override;
+  controller_interface::CallbackReturn on_configure(const rclcpp_lifecycle::State &) override;
+  controller_interface::CallbackReturn on_activate(const rclcpp_lifecycle::State &) override;
+  controller_interface::CallbackReturn on_deactivate(const rclcpp_lifecycle::State &) override;
 
   controller_interface::InterfaceConfiguration command_interface_configuration() const override;
   controller_interface::InterfaceConfiguration state_interface_configuration() const override;
 
+  controller_interface::return_type update(const rclcpp::Time &, const rclcpp::Duration &) override;
 
-  void set_joint_position_targets(const std::vector<double>& targets);
-  void set_water_pump_effort(double effort);
+protected:
+  void jointPositionCallback(const std_msgs::msg::Float64MultiArray::SharedPtr msg);
+  void pumpCommandCallback(const std_msgs::msg::Float64::SharedPtr msg);
 
-private:
+  std::string pump_joint_name_;
   std::vector<std::string> joint_names_;
-  std::vector<hardware_interface::LoanedCommandInterface> joint_handles_;
-  std::unique_ptr<hardware_interface::LoanedCommandInterface> water_pump_handle_;
+  std::vector<std::reference_wrapper<hardware_interface::LoanedCommandInterface>> joint_command_interfaces_;
+  std::vector<std::reference_wrapper<hardware_interface::LoanedStateInterface>>
+    joint_state_interface_;
+  std::vector<std::string> command_interface_types_;
+  std::vector<std::string> state_interface_types_;
+  std::vector<std::string> pump_command_interface_types_;
+  std::vector<std::string> pump_state_interface_types_;
+  
 
-  std::vector<double> joint_position_targets_;
-  double water_pump_effort_{0.0};
 
-  std::string water_pump_joint_;
+  // Cambiar este puntero a LoanedCommandInterface
+  hardware_interface::LoanedCommandInterface* pump_command_interface_ = nullptr;
+
+  rclcpp::Subscription<std_msgs::msg::Float64>::SharedPtr pump_command_sub_;
+  std::atomic<double> pump_command_{0.0};
+
+  rclcpp::Subscription<std_msgs::msg::Float64MultiArray>::SharedPtr joint_position_sub_;
+  realtime_tools::RealtimeBuffer<std::vector<double>> joint_position_buffer_;
 };
 
-}  // namespace arm_servo_controller
-
-#endif  // ARM_SERVO_CONTROLLER__ARM_SERVO_CONTROLLER_HPP_
+}  // namespace robot_bombero_controller

@@ -120,68 +120,6 @@
       <origin xyz="0 0 0.1" rpy="0 0 0"/>
     </joint>
 
-      <!-- Transmisiones para sensores IR -->
-    <transmission name="trans_ir_left">
-      <type>transmission_interface/SimpleTransmission</type>
-      <joint name="joint_sharp_left">
-        <hardwareInterface>hardware_interface/StateInterface</hardwareInterface>
-      </joint>
-      <actuator name="actuator_ir_left">
-        <hardwareInterface>hardware_interface/StateInterface</hardwareInterface>
-      </actuator>
-    </transmission>
-
-    <transmission name="trans_ir_center">
-      <type>transmission_interface/SimpleTransmission</type>
-      <joint name="joint_sharp_front">
-        <hardwareInterface>hardware_interface/StateInterface</hardwareInterface>
-      </joint>
-      <actuator name="actuator_ir_center">
-        <hardwareInterface>hardware_interface/StateInterface</hardwareInterface>
-      </actuator>
-    </transmission>
-
-    <transmission name="trans_ir_right">
-      <type>transmission_interface/SimpleTransmission</type>
-      <joint name="joint_sharp_right">
-        <hardwareInterface>hardware_interface/StateInterface</hardwareInterface>
-      </joint>
-      <actuator name="actuator_ir_right">
-        <hardwareInterface>hardware_interface/StateInterface</hardwareInterface>
-      </actuator>
-    </transmission>
-
-    <!-- Transmisiones para IMU -->
-    <transmission name="trans_imu_x">
-      <type>transmission_interface/SimpleTransmission</type>
-      <joint name="joint_imu">
-        <hardwareInterface>hardware_interface/StateInterface</hardwareInterface>
-      </joint>
-      <actuator name="actuator_imu_x">
-        <hardwareInterface>hardware_interface/StateInterface</hardwareInterface>
-      </actuator>
-    </transmission>
-
-    <transmission name="trans_imu_y">
-      <type>transmission_interface/SimpleTransmission</type>
-      <joint name="joint_imu">
-        <hardwareInterface>hardware_interface/StateInterface</hardwareInterface>
-      </joint>
-      <actuator name="actuator_imu_y">
-        <hardwareInterface>hardware_interface/StateInterface</hardwareInterface>
-      </actuator>
-    </transmission>
-
-    <transmission name="trans_imu_z">
-      <type>transmission_interface/SimpleTransmission</type>
-      <joint name="joint_imu">
-        <hardwareInterface>hardware_interface/StateInterface</hardwareInterface>
-      </joint>
-      <actuator name="actuator_imu_z">
-        <hardwareInterface>hardware_interface/StateInterface</hardwareInterface>
-      </actuator>
-    </transmission>
-
 
   </xacro:macro>
 </robot>
