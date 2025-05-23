@@ -5,6 +5,7 @@ from cv_bridge import CvBridge
 import numpy as np
 import cv2
 import scipy.ndimage
+from ultralytics import YOLO  # YOLOv8 para detección de fuego
 
 class ThermalProcessorNode(Node):
     def __init__(self):
@@ -35,15 +36,58 @@ class ThermalProcessorNode(Node):
 
         # Utilidades
         self.bridge = CvBridge()
-        self.interp_factor = 5
         self.latest_rgb_frame = None
+        self.latest_thermal_colored = None
+        self.interp_factor = 5
+
+        # Cargar modelo YOLOv8 para detección de fuego
+        try:
+            self.model = YOLO('fire_detector_mediplus.pt')  # ⚠️ Ajustar ruta
+            self.get_logger().info("Modelo YOLOv8 cargado correctamente.")
+        except Exception as e:
+            self.get_logger().error(f"Error cargando el modelo YOLOv8: {e}")
+            self.model = None
 
         # Ventana de visualización
         cv2.namedWindow("Vista combinada", cv2.WINDOW_NORMAL)
+        cv2.resizeWindow("Vista combinada", 1280, 720)  # ⬅️ Ajusta a la resolución deseada
+
 
     def rgb_callback(self, msg):
         try:
-            self.latest_rgb_frame = self.bridge.imgmsg_to_cv2(msg, desired_encoding='bgr8')
+            rgb_frame = self.bridge.imgmsg_to_cv2(msg, desired_encoding='bgr8')
+            self.latest_rgb_frame = rgb_frame.copy()
+
+            if self.model is not None:
+                results = self.model(rgb_frame)[0]
+
+                if len(results.boxes) == 0:
+                    self.get_logger().info("No se detectó fuego.")
+                else:
+                    self.get_logger().info(f"{len(results.boxes)} detección(es) encontradas.")
+                    for box in results.boxes:
+                        conf = box.conf.item()
+                        cls_id = int(box.cls.item())
+                        x1, y1, x2, y2 = map(int, box.xyxy[0])
+                        label = results.names[cls_id] if hasattr(results, 'names') else str(cls_id)
+
+                        self.get_logger().info(f"🔥 Detección: {label} ({conf:.2f}) en [{x1},{y1},{x2},{y2}]")
+
+                        if conf > 0.25:  # Umbral bajo para pruebas
+                            cv2.rectangle(rgb_frame, (x1, y1), (x2, y2), (0, 0, 255), 2)
+                            cv2.putText(rgb_frame, f'{label} {conf:.2f}', (x1, y1 - 10),
+                                        cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 0, 255), 2)
+
+            # Mostrar siempre aunque no haya detecciones
+            if self.latest_thermal_colored is not None:
+                thermal_resized = cv2.resize(self.latest_thermal_colored, (rgb_frame.shape[1], rgb_frame.shape[0]))
+                combined = np.hstack((rgb_frame, thermal_resized))
+                cv2.imshow("Vista combinada", combined)
+            else:
+                cv2.imshow("Vista combinada", rgb_frame)
+
+            cv2.waitKey(1)
+
         except Exception as e:
             self.get_logger().error(f"Error procesando imagen RGB: {e}")
 
@@ -64,21 +108,9 @@ class ThermalProcessorNode(Node):
             cv2.putText(thermal_colored, f'{max_temp:.1f}°C', (max_idx[1]+5, max_idx[0]-5),
                         cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255,255,255), 1)
 
-            # === ESPACIO PARA INTEGRAR MODELO DE DETECCIÓN DE FUEGO ===
-            # if self.latest_rgb_frame is not None:
-            #     fire_detected = fire_model.predict(thermal_colored, self.latest_rgb_frame)
-            #     if fire_detected:
-            #         self.get_logger().info("¡Fuego detectado!")
+            # Guarda la imagen térmica coloreada para combinación futura
+            self.latest_thermal_colored = thermal_colored
 
-            # Visualización combinada (solo si hay RGB disponible)
-            if self.latest_rgb_frame is not None:
-                rgb_resized = cv2.resize(self.latest_rgb_frame, (thermal_colored.shape[1], thermal_colored.shape[0]))
-                combined = np.hstack((rgb_resized, thermal_colored))
-                cv2.imshow("Vista combinada", combined)
-            else:
-                cv2.imshow("Vista combinada", thermal_colored)
-
-            cv2.waitKey(1)
         except Exception as e:
             self.get_logger().error(f"Error procesando imagen térmica: {e}")
 
@@ -93,3 +125,4 @@ def main(args=None):
         node.destroy_node()
         rclpy.shutdown()
         cv2.destroyAllWindows()
+

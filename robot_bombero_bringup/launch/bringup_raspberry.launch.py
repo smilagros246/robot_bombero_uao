@@ -104,6 +104,14 @@ def generate_launch_description():
         executable="spawner",
         arguments=["joint_state_broadcaster", "--controller-manager", "/controller_manager"],
     )
+    
+    vision_rasp_node = Node(
+        package='robot_bombero_vision',
+        executable='raspberry_camera_node',
+        name='raspberry_camera_node',
+        output='screen'
+    )
+
 
     # # Lanza RViz después del spawner de arm_controller
     # delay_rviz = RegisterEventHandler(
@@ -121,6 +129,7 @@ def generate_launch_description():
         arm_controller_spawner,
         mecanum_controller_spawner,
         sensor_state_pub_spawner,
-        joint_state_broadcaster_spawner
+        joint_state_broadcaster_spawner,
+        vision_rasp_node
         # delay_rviz
     ])
